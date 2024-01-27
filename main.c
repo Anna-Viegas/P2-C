@@ -47,7 +47,7 @@ struct conta
 typedef struct conta Conta;
 Pessoa cli[10];
 Conta cont[10];
-int cliCad=0, contCri=0;
+int cliCad=0, contCri=1;
 bool valDI(char c[], int cli)
 {
     int n, verif=0;
@@ -239,11 +239,9 @@ int valTelefone(int t)
             }
             else
             {
-                printf("Nao 900000");
                 return -1;
             }
         }
-        printf("Nao 9999");
         return -1;
 
 
@@ -252,7 +250,6 @@ int valTelefone(int t)
     {
         if (t>960000000 && t<989999999 )
         {
-            printf("Nao 9666");
             return -1;
         }
         else
@@ -518,38 +515,111 @@ bool transferencia(int c1, int c2, float s)
         sleep(2);
     }
     return true;
-} void backup (){
+}
+void backup ()
+{
 
- 	ficheiro = fopen("bdtes.txt","w");
- 	if (ficheiro==NULL) {
- 		printf(" Nao foi possivel abrir ficheiro ERRO\n");
-	 }
-	 else{
+    ficheiro = fopen("bdtes.txt","w");
+    if (ficheiro==NULL)
+    {
+        printf(" Nao foi possivel abrir ficheiro ERRO\n");
+    }
+    else
+    {
         int ln;
-	 	for (int i=0; i<=cliCad-1; i++){
-	 		 Pessoa p;
-	 		 Conta c;
-	 		 p=cli[i];
-	 		 c=cont[i];
-              ln = strlen(p.nome) - 1;
+        for (int i=0; i<=cliCad-1; i++)
+        {
+            Pessoa p;
+            Conta c;
+            p=cli[i];
+            c=cont[i];
+            ln = strlen(p.nome) - 1;
             if (p.nome[ln] == '\n')
-            p.nome[ln] = '\0';
-             ln = strlen(p.dataN) - 1;
+                p.nome[ln] = '\0';
+            ln = strlen(p.dataN) - 1;
             if (p.dataN[ln] == '\n')
-            p.dataN[ln] = '\0';
-             ln = strlen(p.di) - 1;
+                p.dataN[ln] = '\0';
+            ln = strlen(p.di) - 1;
             if (p.di[ln] == '\n')
-            p.di[ln] = '\0';
-	 		fprintf(ficheiro,"%d;%d;%s;%s;%s;%d;%d;%d;%f;%s",p.codCli,p.tipoCli,p.nome,p.di,p.dataN,p.idade,p.telefone,c.numConta,c.saldo,c.estado);
-			fprintf(ficheiro,"\n");
+                p.di[ln] = '\0';
+            fprintf(ficheiro,"%d;%d;%s;%s;%s;%d;%d;%d;%d;%f;%s",p.codCli,p.tipoCli,p.nome,p.di,p.dataN,p.idade,p.telefone,c.codCli,c.numConta,c.saldo,c.estado);
+            fprintf(ficheiro,"\n");
         }
 
-		 fclose(ficheiro);
-	 }
- }
+        fclose(ficheiro);
+    }
+}
+void restaurarficheiro ()
+{
+    Pessoa p;
+    Conta c;
+    ficheiro = fopen("bdtes.txt","r");
+    char linha[1000];
+    while (fscanf(ficheiro,"%[^\n]\n", &linha)==1)
+    {
+        char *token=strtok(linha, ";");
+        char *quebrar_linha[11];
+        int i=0;
+        while (token!=NULL)
+        {
+            quebrar_linha[i]=token;
+            token=strtok(NULL,";");
+            i++;
+        }
+
+        p.codCli=atoi(quebrar_linha[0]);
+        p.tipoCli=atoi(quebrar_linha[1]);
+
+        char *nome=quebrar_linha[2];
+        int encher=0;
+
+        while(*nome!='\0')
+        {
+            p.nome[encher++]=*nome++;
+        }
+        char *di=quebrar_linha[3];
+        int j=0;
+        while(*di!='\0')
+        {
+            p.di[j++]=*di++;
+        }
+        char *data=quebrar_linha[4];
+        int k=0;
+        while(*data!='\0')
+        {
+
+            p.dataN[k++]=*data++;
+
+        }
+        p.idade=atoi(quebrar_linha[5]);
+        p.telefone=atoi(quebrar_linha[6]);
+        c.codCli=atoi(quebrar_linha[7]);
+        c.numConta=atoi(quebrar_linha[8]);
+        c.saldo=atof(quebrar_linha[9]);
+        char *estado=quebrar_linha[10];
+
+        int m=0;
+        while(*estado!='\0')
+        {
+
+            c.estado[m++]=*estado++;
+
+        }
+
+        cli[cliCad]=p;
+        cont[cliCad]=c;
+
+        cliCad++;
+    }
+
+    fclose(ficheiro);
+
+}
+
 
 int main()
 {
+    restaurarficheiro ();
     setlocale(LC_ALL, "portuguese");
     Pessoa p;
     dataA();
@@ -1363,7 +1433,6 @@ int main()
                     else
                     {
                         if (opc==1)
-                             printf("Opçao errada");
                         {
                             if (strcmp(cont[retorno].estado, "Bloqueada")==0)
                             {
@@ -1372,6 +1441,7 @@ int main()
                             }
                             else
                             {
+
                                 do
                                 {
                                     printf("\n\tNúmero da Conta a receber valores: ");
@@ -1650,7 +1720,8 @@ int main()
             while( retorno==-1 && opc!=1);
             break;
         default:
-            printf(" ggggg ");
+            header();
+            printf("\n\tPrograma Terminado com sucesso!");
         }
         backup();
     }
