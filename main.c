@@ -7,7 +7,7 @@
 #include <windows.h>
 #include<time.h>
 #include<stdbool.h>
-
+FILE *ficheiro;
 
 void header ()
 {
@@ -267,6 +267,7 @@ bool cadastro( Pessoa p)
     cli[cliCad]=p;
     cont[cliCad].codCli=p.codCli;
     cont[cliCad].saldo=-1;
+    strcpy(cont[cliCad].estado, "Inexistente");
     cliCad++;
     return true;
 }
@@ -285,7 +286,6 @@ bool listaDeClientes(int opc)
             {
                 if (p.tipoCli==0)
                 {
-
                     printf("\n\tCódigo do Cliente: %d\n", p.codCli);
                     printf("\tNome do Cliente: %s", p.nome);
                     printf("\tBilhete de Identidade: %s", p.di);
@@ -518,7 +518,35 @@ bool transferencia(int c1, int c2, float s)
         sleep(2);
     }
     return true;
-}
+} void backup (){
+
+ 	ficheiro = fopen("bdtes.txt","w");
+ 	if (ficheiro==NULL) {
+ 		printf(" Nao foi possivel abrir ficheiro ERRO\n");
+	 }
+	 else{
+        int ln;
+	 	for (int i=0; i<=cliCad-1; i++){
+	 		 Pessoa p;
+	 		 Conta c;
+	 		 p=cli[i];
+	 		 c=cont[i];
+              ln = strlen(p.nome) - 1;
+            if (p.nome[ln] == '\n')
+            p.nome[ln] = '\0';
+             ln = strlen(p.dataN) - 1;
+            if (p.dataN[ln] == '\n')
+            p.dataN[ln] = '\0';
+             ln = strlen(p.di) - 1;
+            if (p.di[ln] == '\n')
+            p.di[ln] = '\0';
+	 		fprintf(ficheiro,"%d;%d;%s;%s;%s;%d;%d;%d;%f;%s",p.codCli,p.tipoCli,p.nome,p.di,p.dataN,p.idade,p.telefone,c.numConta,c.saldo,c.estado);
+			fprintf(ficheiro,"\n");
+        }
+
+		 fclose(ficheiro);
+	 }
+ }
 
 int main()
 {
@@ -1624,6 +1652,7 @@ int main()
         default:
             printf(" ggggg ");
         }
+        backup();
     }
     while(opcao!=9);
     return 0;
